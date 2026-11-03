@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Laravel 13 Блог с нуля')</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
+    @vite(['resources/css/app.css', 'resources/js/app.js']) <style>
         .accent {
             background-image: linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6)
         }

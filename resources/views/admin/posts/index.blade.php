@@ -8,7 +8,7 @@
             <h1 class="text-xl font-bold">Посты</h1>
             <p class="text-sm text-gray-400">Управляйте контентом блога</p>
         </div>
-        <a href="{{ route('posts.create') }}" class="btn btn-primary cursor-pointer p-1 rounded-xl">+ Новый пост</a>
+        <a href="{{ route('admin.posts.create') }}" class="btn btn-primary cursor-pointer p-1 rounded-xl">+ Новый пост</a>
     </div>
     <div class="glass rounded-2xl p-4 border border-white/10">
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -45,7 +45,7 @@
                 <tr>
                     <td class="px-4 py-3">{{ $post->id }}</td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('posts.show', $post->id) }}">{{ $post->title }}</a>
+                        <a href="{{ route('admin.posts.show', $post->id) }}">{{ $post->title }}</a>
                     </td>
                     <td class="px-4 py-3">
                         <span class="badge">{{ $post->is_published ? 'Опубликован' : 'В драфте' }}</span>
@@ -53,8 +53,8 @@
                     <td class="px-4 py-3">{{ $post->published_at?->format('d.m.Y') }}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2 justify-end">
-                            <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-outline">Редактировать</a>
-                            <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
+                            <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-outline">Редактировать</a>
+                            <form action="{{ route('admin.posts.destroy', $post->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-outline cursor-pointer">Удалить</button>
@@ -68,10 +68,10 @@
 
         <div class="flex items-center justify-center gap-2">
             {{ $posts->links() }}
-            <a class="btn btn-outline p-2 rounded-xl" href="#">Назад</a>
+            {{-- <a class="btn btn-outline p-2 rounded-xl" href="#">Назад</a>
             <a class="btn btn-primary p-2 rounded-xl" href="#">1</a>
             <a class="btn btn-outline p-2 rounded-xl" href="#">2</a>
-            <a class="btn btn-outline p-2 rounded-xl" href="#">Вперёд</a>
+            <a class="btn btn-outline p-2 rounded-xl" href="#">Вперёд</a> --}}
         </div>
     </div>
 @endsection
