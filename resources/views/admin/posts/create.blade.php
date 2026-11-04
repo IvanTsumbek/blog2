@@ -12,7 +12,11 @@
 
         <div class="flex flex-col">
             <label class="label">Изображение</label>
-            <input type="file" name="image" accept="image/*" class="mt-1 block w-full rounded border border-white/10 bg-gray-900/40 p-2 cursor-pointer">
+            <input type="file" name="image" accept="image/*"
+                class="mt-1 block w-full rounded border border-white/10 bg-gray-900/40 p-2 cursor-pointer">
+            @error('image')
+                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="flex flex-col">
