@@ -64,7 +64,7 @@
         <aside id="aside"
             class="md:col-span-3 lg:col-span-2 glass rounded-2xl p-3 border border-white/10 md:block hidden">
             <nav class="space-y-1">
-                <a href="posts-list.html"
+                <a href="{{ route('admin.posts.index') }}"
                     class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white bg-white/5">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
                         <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.5"
@@ -72,7 +72,7 @@
                     </svg>
                     Посты
                 </a>
-                <a href="#"
+                <a href="{{ route('admin.posts.index') }}"
                     class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
                         <path d="M5 12h14M5 12a7 7 0 117 7" stroke="currentColor" stroke-width="1.5"
