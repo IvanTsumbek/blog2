@@ -40,15 +40,6 @@
             @enderror
         </div>
 
-        {{-- <div class="flex flex-col">
-            <label class="label">Ссылка</label>
-            <input class="input border px-3 py-1 rounded-xl" placeholder="Название поста" name="slug"
-                value="{{ old('slug', $post->slug) }}" />
-            @error('slug')
-                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div> --}}
-
         <div class="flex flex-col">
             <label class="label">Краткое описание</label>
             <textarea class="input border px-3 py-1 rounded-xl" rows="3" placeholder="Тизер для списка постов..."

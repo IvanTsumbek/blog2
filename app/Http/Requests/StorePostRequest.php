@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class StorePostRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class StorePostRequest extends FormRequest
             'slug' => 'nullable',
             'excerpt' => 'required|min:10',
             'body' => 'required|min:10',
-            'is_published' => 'nullable',
+            'is_published' => 'sometimes|boolean',
             'published_at' => 'nullable',
             'user_id' => 'nullable',
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
@@ -42,5 +43,12 @@ class StorePostRequest extends FormRequest
             'body.required'    => 'Пожалуйста, введите текст поста',
             'image.image'      => 'Файл должен быть изображением',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_publeshed' => $this->boolean('is_publeshed'),
+        ]);
     }
 }
