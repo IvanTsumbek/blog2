@@ -48,7 +48,7 @@ class StorePostRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
-            'is_publeshed' => $this->boolean('is_publeshed'),
+            'is_published' => $this->boolean('is_published'),
         ]);
     }
 }
