@@ -7,7 +7,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Repositories\Interfaces\PostRepositoryInterface;
-use App\Service\PostService;
+use App\Services\PostService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
