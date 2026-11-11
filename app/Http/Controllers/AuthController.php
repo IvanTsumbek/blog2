@@ -30,7 +30,7 @@ class AuthController extends Controller
         $this->auth->attemptLogin($request->email, $request->password);
         $request->session()->regenerate();
 
-        return redirect()->route('admin.posts.index');
+        return redirect()->route('verification.notice');
     }
 
     public function login(LoginRequest $request): RedirectResponse
