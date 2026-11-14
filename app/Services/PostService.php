@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Repositories\Interfaces\PostRepositoryInterface;
 use App\Services\Interfaces\PostServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -18,20 +19,37 @@ class PostService implements PostServiceInterface
 
     public function getAllApi(): Collection
     {
-        return $this->postRepository->allApi();
+        $posts = Cache::remember('posts_all', 120, function () {
+            return $this->postRepository->allApi()->toArray();
+        });
+
+        return Post::hydrate($posts);
     }
 
     public function getByIdApi(int $id): ?Post
     {
-        return $this->postRepository->findApi($id);
+        $data = Cache::remember("post_{$id}", 60, function () use ($id) {
+            return $this->postRepository->findApi($id)?->toArray();
+        });
+
+        return $data ? (new Post())->newFromBuilder($data) : null;
     }
 
     public function createApi(array $data): Post
     {
         $slug = Str::slug($data['title']);
         $data['slug'] = $slug;
+        $post = $this->postRepository->createApi($data);
 
-        return $this->postRepository->createApi($data);
+        Cache::forget('posts_all');
+
+        $id = $post->id;
+
+        // Cache::tags(['posts'])->flush();
+
+        return Cache::tags(['posts'])->remember("post_{$id}", 120, function () use ($id) {
+            return $this->postRepository->findApi($id);
+        });
     }
 
     public function updateApi(int $id, array $data): ?Post
@@ -41,8 +59,10 @@ class PostService implements PostServiceInterface
 
         $slug = Str::slug($data['title']);
         $data['slug'] = $slug;
+        $updatedPost = $this->postRepository->updateApi($post, $data);
 
-        return $this->postRepository->updateApi($post, $data);
+        Cache::forget('posts_all');
+        return $updatedPost;
     }
 
     public function deleteApi(int $id): bool
@@ -50,7 +70,10 @@ class PostService implements PostServiceInterface
         $post = $this->postRepository->findApi($id);
         if (!$post) return false;
 
-        return $this->postRepository->deleteApi($post);
+        $deletedPost = $this->postRepository->deleteApi($post);
+        Cache::forget('posts_all');
+
+        return $deletedPost;
     }
 
     public function create(array $data): Post
