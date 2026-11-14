@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+
+class PostResource extends BaseResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id'                 => $this->id,
+            'title'              => $this->title,
+            'slug'               => $this->slug,
+            'excerpt'            => $this->excerpt,
+            'body'               => $this->when($request->user()->id === $this->user_id, $this->body),
+            'is_published'       => $this->is_published,
+            'published_at'       => $this->published_at,
+            'published_at_human' => $this->published_at?->diffForHumans(),
+            'admin_only'         => $this->mergeWhen($request->user()->role->value === 'admin', ['ip' => $this->ip_adress]),
+        ];
+    }
+}
