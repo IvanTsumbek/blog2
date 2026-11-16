@@ -26,6 +26,13 @@ class PostService implements PostServiceInterface
         return Post::hydrate($posts);
     }
 
+    public function getTrashed(): Collection
+    {
+        return Cache::remember('posts_trash', 120, function () {
+            return $this->postRepository->getTrashed();
+        });
+    }
+
     public function getByIdApi(int $id): ?Post
     {
         $data = Cache::remember("post_{$id}", 60, function () use ($id) {
@@ -65,15 +72,38 @@ class PostService implements PostServiceInterface
         return $updatedPost;
     }
 
-    public function deleteApi(int $id): bool
+    public function softDeleteApi(int $id): bool
     {
         $post = $this->postRepository->findApi($id);
         if (!$post) return false;
 
-        $deletedPost = $this->postRepository->deleteApi($post);
+        $deletedPost = $this->postRepository->softDelete($post);
         Cache::forget('posts_all');
+        Cache::forget("posts_{$id}");
 
         return $deletedPost;
+    }
+
+    public function restoreApi(int $id): ?Post
+    {
+        $post = $this->postRepository->restore($id);
+        if (!$post) return null;
+
+        Cache::forget('posts_all');
+        Cache::forget("posts_{$id}");
+
+        return $post;
+    }
+
+    public function forceDeleteApi(int $id): bool
+    {
+        $deleted = $this->postRepository->forceDelete($id);
+        if (!$deleted) return false;
+
+        Cache::forget('posts_all');
+        Cache::forget("posts_{$id}");
+
+        return true;
     }
 
     public function create(array $data): Post
