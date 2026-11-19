@@ -8,6 +8,7 @@ use App\Services\Interfaces\PostServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -48,11 +49,15 @@ class PostService implements PostServiceInterface
         $data['slug'] = $slug;
         $post = $this->postRepository->createApi($data);
 
+        Log::info("Post Created", [
+            "post_id" => $post->id,
+            "user_id" => $post->user_id
+        ]);
+
         Cache::forget('posts_all');
+        Cache::forget("posts_{$post->id}");
 
         $id = $post->id;
-
-        // Cache::tags(['posts'])->flush();
 
         return Cache::tags(['posts'])->remember("post_{$id}", 120, function () use ($id) {
             return $this->postRepository->findApi($id);

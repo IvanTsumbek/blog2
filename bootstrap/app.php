@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\ApiException;
+use App\Http\Middleware\RequestIdMiddleware;
 use App\Http\Middleware\RoleMiddlewear;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -8,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -21,51 +23,76 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddlewear::class,
         ]);
+        $middleware->append(RequestIdMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-    $exceptions->render(function (ApiException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-            'errors'  => $e->errors,
-        ], $e->status);
-    });
 
-    $exceptions->render(function (ModelNotFoundException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Resource not found',
-        ], 404);
-    });
+        $exceptions->report(function (ApiException $e): bool {
+            if ($e->status >= 400 && $e->status < 500) {
+                return false;
+            }
 
-    $exceptions->render(function (AuthorizationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage() ?: "Forbidden",
-        ], 403);
-    });
+            Log::error('ApiException', [
+                'message' => $e->getMessage(),
+                'status'  => $e->status,
+                'errors'  => $e->errors,
+            ]);
 
-    $exceptions->render(function (AuthenticationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => "Unauthorized",
-        ], 401);
-    });
+            return true;
+        });
 
-    $exceptions->render(function (ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => "Validation error",
-            'errors'  => $e->errors(),
-        ], 422);
-    });
+        $exceptions->report(function (Throwable $e): bool {
+            Log::error("Unhandled exception", [
+                'type'    => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
 
-    $exceptions->render(function (\Throwable $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ], 500);
-    });
+            return true;
+        });
+
+        $exceptions->render(function (ApiException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors'  => $e->errors,
+            ], $e->status);
+        });
+
+        $exceptions->render(function (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource not found',
+            ], 404);
+        });
+
+        $exceptions->render(function (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage() ?: "Forbidden",
+            ], 403);
+        });
+
+        $exceptions->render(function (AuthenticationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Unauthorized",
+            ], 401);
+        });
+
+        $exceptions->render(function (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Validation error",
+                'errors'  => $e->errors(),
+            ], 422);
+        });
+
+        $exceptions->render(function (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        });
     })->create();
 
 
